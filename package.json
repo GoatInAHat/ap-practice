@@ -1,0 +1,27 @@
+{
+  "name": "ap-practice",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "watch": "tsc -w",
+    "start": "ts-node index.ts",
+    "dev": "nodemon --exec ts-node src/index.ts"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/GoatInAHat/ap-practice.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/GoatInAHat/ap-practice/issues"
+  },
+  "homepage": "https://github.com/GoatInAHat/ap-practice#readme",
+  "dependencies": {
+    "@types/node": "^17.0.21",
+    "nodemon": "^2.0.15",
+    "ts-node": "^10.5.0"
+  }
+}
