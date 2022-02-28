@@ -65,7 +65,7 @@ def get_questions(subject):
                 continue
             if item.name == 'p':
                 if item.findAll('img') != []:
-                    question_text = item.findAll('img')[0].get('alt')
+                    question_text = item.findAll('img')[0].get('src')
                     question['content'].append({'img': question_text})
                 if not '<strong>' in str(item):
                     question['content'].append({'text': item.text})
@@ -76,7 +76,7 @@ def get_questions(subject):
             text = None
             
             if item.findAll('img') != []:
-                img = item.findAll('img')[0].get('alt')
+                img = item.findAll('img')[0].get('src')
             if answer.text != '\n':
                 text = answer.text.split('. ')[1].lstrip(' ')
             
@@ -97,8 +97,6 @@ for child in soup.body.section.aside.findAll('div')[1].ul.findAll('li'):
             subject_num += 1
             questions[item[0].text] = {'subjectid':item[0].get('href')}
             questions[item[0].text]['questions'] = get_questions(item[0].get('href'))
-
-pprint(questions)
 
 for subject in questions:
     print(f'{subject}: {len(questions[subject]["questions"])}')
