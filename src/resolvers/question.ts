@@ -19,6 +19,13 @@ export class QuestionResolver {
         return JSON.stringify(questiondata[subject]['questions'][Math.floor(Math.random() * questiondata[subject]['questions'].length)]);
     }
 
+    @Query(() => String)
+    async allQuestions(
+        @Arg("subject") subject: string
+    ) {
+        return JSON.stringify(questiondata[subject]['questions']);
+    }
+
     @Query(() => [String])
     async subjectlist() {
         return Object.keys(questiondata);

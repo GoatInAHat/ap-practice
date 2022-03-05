@@ -12,30 +12,11 @@ questions = {}
 
 subject_num = 0
 question_num = 0
-
-"""
-Question json structure
-
-{
-    subjects: {
-        subject_name: "",
-        subject_id: ""
-        questions: [
-            {
-                content: [
-                    [type, text],
-                ],
-                answers: []
-            },
-        ]
-    }
-}
-
-"""
+current_subject = ''
 
 def log_question(text):
-    text = text.replace('\n', '')
-    print(f'({subject_num} {question_num})  {text}')
+    pprint(text)
+    print(f'({subject_num} {question_num}) ({current_subject})')
 
 print(questions)
 
@@ -47,40 +28,38 @@ def get_questions(subject):
         i += 1
         question_num = i
         try:
-            response = requests.get(f'https://www.crackap.com{subject}question-{i}-answer-and-explanation.html')
+            response = requests.get(f'https://www.crackap.com{subject}question-{i}.html')
         except:
             print('timed out, waiting')
             time.sleep(30)
-            response = requests.get(f'https://www.crackap.com{subject}question-{i}-answer-and-explanation.html')
+            response = requests.get(f'https://www.crackap.com{subject}question-{i}.html')
         if str(response) == '<Response [404]>':
             print('found end of questions')
             break
         soup = BeautifulSoup(response.text, 'lxml')
-        question = {'content': [], 'answers': {}}
-        
-        question_text = None
-        
+        question = {'content': "", 'answers': {}}
+
+        question['content'] += '<div class="content">'
+
         for item in soup.findAll('div', {'class': 'mcontent'})[0].findAll():
-            if not item.name == 'p' and not item.name == 'ul':
-                continue
-            if item.name == 'p':
-                if item.findAll('img') != []:
-                    question_text = item.findAll('img')[0].get('src')
-                    question['content'].append({'img': question_text})
-                if not '<strong>' in str(item):
-                    question['content'].append({'text': item.text})
-                    log_question(item.text)
-        
-        for answer in soup.findAll('ul', {'class': 'qlist'})[0].findAll('li'):
-            img = None
-            text = None
             
-            if item.findAll('img') != []:
-                img = item.findAll('img')[0].get('src')
-            if answer.text != '\n':
-                text = answer.text.split('. ')[1].lstrip(' ')
+            if item.name == 'pre':
+                for thing in item.findAll():
+                    question['content'] += str(thing)
             
-            question['answers'][answer.text[0]] = {'img': img, 'text': text}
+            if item.name == 'p' and not '</strong></p>' in str(item):
+                print(str(item))
+                question['content'] += str(item)
+
+            if item.name == 'div' and item.get('class') == ['radio']:
+                question['answers'][item.text[0]] = str(item)
+
+            if item.name == 'div' and item.get('class') == ['answer']:
+                question['correct'] = item.findAll('p')[0].findAll('span')[0].text
+                question['explanation'] = str(item.findAll('p')[2])
+
+        question['content'] += '</div>'
+        log_question(question)
 
         question['correct'] = soup.findAll('p')[-4].text.split(' ')[-1]
 
@@ -92,11 +71,14 @@ def get_questions(subject):
 
 for child in soup.body.section.aside.findAll('div')[1].ul.findAll('li'):
     item = child.findAll('a', attrs={ 'class' : 'sub'})
-    if len(item) != 0:
-        if '.html' not in item[0].get('href'):
-            subject_num += 1
-            questions[item[0].text] = {'subjectid':item[0].get('href')}
-            questions[item[0].text]['questions'] = get_questions(item[0].get('href'))
+    if len(item) > 0:
+        subject = item[0].get('href')
+        if subject != 0:
+            if '.html' not in subject:
+                subject_num += 1
+                current_subject = subject
+                questions[item[0].text] = {'subjectid':subject}
+                questions[item[0].text]['questions'] = get_questions(subject)
 
 for subject in questions:
     print(f'{subject}: {len(questions[subject]["questions"])}')
