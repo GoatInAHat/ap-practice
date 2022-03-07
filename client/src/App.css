@@ -1,17 +1,48 @@
+html, body {
+  height: 100%;
+  background-color: #010409;
+}
+
 .App {
-  text-align: center;
+  text-align: left;
+  background-color: #010409;
+  height: 100%;
 }
 
-.App-logo {
-  height: 40vmin;
-  pointer-events: none;
+.content {
+  color: rgba(229,231,235);
 }
 
-@media (prefers-reduced-motion: no-preference) {
-  .App-logo {
-    animation: App-logo-spin infinite 20s linear;
-  }
+.header {
+  background-color: #161b22;
+  padding-left: 10%;
+  padding-right: 10%;
+  padding-top: 10px;
+  padding-bottom: 10px;
+  color: rgba(229,231,235);
+  font-size: 20px;
+  display: flex;
+  justify-content: space-between;
+  border: #161b22 1px solid;
 }
+
+.header:hover {
+  color: white;
+}
+
+.Question {
+  margin-top: 20px;
+  margin-bottom: 20px;
+  margin-left: 20px;
+  margin-right: 20px;
+  box-shadow: rgba(41, 41, 41, 0.2) 0px 12px 48px 0px;
+  background-color: #262626;
+  border-radius: 20px;
+  padding-top: 10px;
+  padding-bottom: 10px;
+  padding-left: 20px;
+  padding-right: 20px;
+} 
 
 .App-header {
   background-color: #282c34;

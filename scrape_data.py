@@ -41,7 +41,7 @@ def get_questions(subject):
 
         question['content'] += '<div class="content">'
 
-        for item in soup.findAll('div', {'class': 'mcontent'})[0].findAll():
+        for item in soup.findAll('div', {'class': 'mcontent'})[0].children:
             
             if item.name == 'pre':
                 for thing in item.findAll():

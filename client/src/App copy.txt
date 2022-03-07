@@ -7,6 +7,10 @@ import { useLazyQuery } from '@apollo/client';
 
 let currentCourse = "AP Chemistry"
 
+const CLASSES = gql`
+  query subjectlist
+`;
+
 const httpLink = new HttpLink({
   uri: "http://localhost:4000/graphql",
 });
@@ -18,17 +22,15 @@ export const client = new ApolloClient({
 
 async function getAllQuestions(subject: String) {
   const data = await client.query({ query: gql`
-  query question { allQuestions(subject: "AP Chemistry") }` })
+  query question { allQuestions(subject: ${subject}) }` })
 
   return JSON.parse(data.data.allQuestions);
 }
 
 async function getAllClasses() {
-  const data = await client.query({ query: gql`
-  query question { subjectlist }
-` })
-  console.log(data.data)
-  return data.data;
+  const data = await client.query({ query: CLASSES })
+
+  return JSON.parse(data.data);
 }
 
 function randomQuestion(questions:[Object]) {
@@ -100,21 +102,28 @@ function ClassSelector () {
 
   useEffect(() => {
     async function getClasses() {
-      const classes:any = await getAllClasses();
-      setclasses(classes);
+      const question:any = randomQuestion(await getAllClasses());
+      setclasses(question.content);
     }
     getClasses();
   }, []);
 
+  const classOptions = [];
+
+  for (const classstr of classes) {
+    classOptions.push(<option value={classstr}>{classstr}</option>)
+  }
+
   return (
-    <div className="Question" dangerouslySetInnerHTML={{__html: classes}}></div>
+    <select name="Choose an AP subject" onChange={(e) => {currentCourse = e.target.value}}>
+      {classOptions}
+    </select>
   )
 }
 
 function Header() {
   return (
     <header className="header">
-      <ClassSelector></ClassSelector>
       <a>test</a>
       <a>test</a>
       <a>test</a>
