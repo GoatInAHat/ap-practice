@@ -23,7 +23,6 @@ export class QuestionResolver {
     async allQuestions(
         @Arg("subject") subject: string
     ) {
-        console.log('qusrlgkjhkldj')
         return JSON.stringify(questiondata[subject]['questions']);
     }
 
@@ -31,7 +30,6 @@ export class QuestionResolver {
     async subjectlist(
         @Arg("subject") subject: string
     ) {
-        console.log(Object.keys(questiondata))
         return Object.keys(questiondata);
     }
 }

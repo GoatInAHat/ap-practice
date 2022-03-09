@@ -3,6 +3,7 @@ from pprint import pprint
 import requests
 from bs4 import BeautifulSoup
 import time
+import re
 
 response = requests.get('https://www.crackap.com')
 
@@ -52,7 +53,7 @@ def get_questions(subject):
                 question['content'] += str(item)
 
             if item.name == 'div' and item.get('class') == ['radio']:
-                question['answers'][item.text[0]] = str(item)
+                question['answers'][item.text[0]] = re.sub(r"<input name=\"[0-9]+\" type=\"radio\" value=\"[a-zA-Z]\"/>", '', str(item.label))
 
             if item.name == 'div' and item.get('class') == ['answer']:
                 question['correct'] = item.findAll('p')[0].findAll('span')[0].text
