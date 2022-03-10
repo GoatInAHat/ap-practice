@@ -15,8 +15,7 @@ subject_num = 0
 question_num = 0
 current_subject = ''
 
-def log_question(text):
-    pprint(text)
+def log_question():
     print(f'({subject_num} {question_num}) ({current_subject})')
 
 print(questions)
@@ -32,7 +31,7 @@ def get_questions(subject):
             response = requests.get(f'https://www.crackap.com{subject}question-{i}.html')
         except:
             print('timed out, waiting')
-            time.sleep(30)
+            time.sleep(40)
             response = requests.get(f'https://www.crackap.com{subject}question-{i}.html')
         if str(response) == '<Response [404]>':
             print('found end of questions')
@@ -49,7 +48,6 @@ def get_questions(subject):
                     question['content'] += str(thing)
             
             if item.name == 'p' and not '</strong></p>' in str(item):
-                print(str(item))
                 question['content'] += str(item)
 
             if item.name == 'div' and item.get('class') == ['radio']:
@@ -59,12 +57,8 @@ def get_questions(subject):
         question['correct'] = soup.findAll('span', {'id': 'key'})[0].text
 
         question['content'] += '</div>'
-        log_question(question)
+        log_question()
 
-        question['correct'] = soup.findAll('p')[-4].text.split(' ')[-1]
-
-        question['explanation'] = soup.findAll('p')[-2].text
-                
         qlist.append(question)
 
     return qlist

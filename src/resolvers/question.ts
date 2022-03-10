@@ -1,4 +1,4 @@
-import { Resolver, Query, Arg, GraphQLTimestamp } from "type-graphql";
+import { Resolver, Query, Arg, GraphQLTimestamp, ObjectType } from "type-graphql";
 import fs from "fs";
 import path from "path";
 

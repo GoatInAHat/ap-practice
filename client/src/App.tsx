@@ -3,7 +3,7 @@ import React, { useState } from "react";
 import { gql } from "@apollo/client";
 import { ApolloClient, ApolloLink, HttpLink, InMemoryCache } from "@apollo/client";
 
-let currentCourse = "AP Chemistry"
+const defaultCourse = "AP Chemistry"
 
 const allQuestions:any = {'AP World History': '/ap/world-history/', 'AP US History': '/ap/us-history/', 'AP European History': '/ap/european-history/', 'AP US Government and Politics': '/ap/us-government-and-politics/', 'AP Psychology': '/ap/psychology/', 'AP Human Geography': '/ap/human-geography/', 'AP Biology': '/ap/biology/', 'AP Chemistry': '/ap/chemistry/', 'AP Macroeconomics': '/ap/macroeconomics/', 'AP Microeconomics': '/ap/microeconomics/', 'AP Statistics': '/ap/statistics/', 'AP English Language and Composition': '/ap/english-language-and-composition/', 'AP English Literature and Composition': '/ap/english-literature-and-composition/', 'AP Calculus AB': '/ap/calculus-ab/', 'AP Calculus BC': '/ap/calculus-bc/', 'AP Physics 1': '/ap/physics-1/', 'AP Physics 2': '/ap/physics-2/', 'AP Physics C: Mechanics': '/ap/physics-c-mechanics/', 'AP Physics C: Electricity and Magnetism': '/ap/physics-c-electricity-and-magnetism/', 'AP Environmental Science': '/ap/environmental-science/'};
 
@@ -17,8 +17,9 @@ export const client = new ApolloClient({
 });
 
 async function getAllQuestions(subject: String) {
+  console.log(subject);
   const data = await client.query({ query: gql`
-  query question { allQuestions(subject: "${currentCourse}") }` })
+  query question { allQuestions(subject: "${subject}") }` })
 
   return JSON.parse(data.data.allQuestions);
 }
@@ -49,30 +50,30 @@ class Explanation extends React.Component<ExplanationProps, ExplanationState> {
   componentDidMount() {
     eventBus.on("answerclick", (data:any) => {this.setState({show: true})});
     eventBus.on("nextclick", () => {this.setState({show: false})});
+    eventBus.on("refresh", () => {this.setState({show: false})});
+  }
+
+  componentWillUnmount () {
+    eventBus.remove("answerclick", (data:any) => {this.setState({show: true})});
+    eventBus.remove("nextclick", () => {this.setState({show: false})});
+    eventBus.remove("refresh", () => {this.setState({show: false})});
   }
 
   render () {
     if (this.state.show) {
       return (
-      <>
-      <div className='correctanswer'>
-        <b>Correct Answer:</b>
-        <p>{this.props.correct}</p>
-      </div>
       <div className='explanation'>
-        <b>Explanation:</b>
-        <p>{this.props.explanation
-        .replace(`(${this.props.correct}) `, '')
-        .replace(`${this.props.correct}-`, '')
-        .replace(/^[a-zA-Z]\s/, '')
-        }</p>
+        <div dangerouslySetInnerHTML={{__html: this.props.explanation}}></div>
       </div>
-      </>)
+      )
     } else {
-      return (<button className='showanswer' onClick={() => {
+      return (
+      <div className='explanation'>
+      <button className='showanswer' onClick={() => {
         this.setState({show: true});
         eventBus.dispatch("answerclick", { answer: '' });
-      }}>Show Answer</button>)
+      }}>Show Answer</button>
+      </div>)
     }
   }
 }
@@ -121,14 +122,17 @@ class AnswerButton extends React.Component<AnswerButtonProps, AnswerButtonState>
   componentDidMount() {
     eventBus.on("answerclick", (data:any) => {this.checkifcorrect(data.answer)});
     eventBus.on("nextclick", () => {this.resetanswerstate()});
+    eventBus.on("refresh", () => {this.resetanswerstate()});
   }
 
   componentWillUnmount() {
     eventBus.remove("answerclick", (data:any) => {this.checkifcorrect(data.answer)});
     eventBus.on("nextclick", () => {this.resetanswerstate()});
+    eventBus.on("refresh", () => {this.resetanswerstate()});
   }
   
   render () {
+    console.log(this.props.htmlcontent);
     return (
       <div className={this.state.classname} dangerouslySetInnerHTML={this.props.htmlcontent} onClick={this.state.clickable ? this.props.clickfunc : null}></div>
     )
@@ -143,6 +147,7 @@ interface QuestionState {
   answers: Object,
   correct: string,
   explanation: string,
+  questionlist: any,
 }
 
 const eventBus = {
@@ -165,42 +170,52 @@ class Question extends React.Component<QuestionProps, QuestionState> {
       answers: [],
       correct: '',
       explanation: '',
+      questionlist: [],
     }
   }
+
+  async fetchquestionlist(subject:string) {
+    this.setState({questionlist: await getAllQuestions(subject)});
+    this.refreshquestion();
+  }
   
-  async refreshquestion () {
-    const question:any = randomQuestion(await getAllQuestions("AP Chemistry"));
+  refreshquestion () {
+    const question:any = randomQuestion(this.state.questionlist);
+    console.log(this.state.questionlist)
     this.setState({question: question.content});
     let answers = [];
     for (const key of Object.keys(question.answers)) {
       answers.push(
-      <AnswerButton 
-      correct={question['correct']}
-      answerletter={key}
-      clickfunc={() => {
-        console.log(`answer ${key} clicked`);
-        eventBus.dispatch("answerclick", { answer: key });
+        <AnswerButton 
+        correct={question['correct']}
+        answerletter={key}
+        clickfunc={() => {
+          console.log(`answer ${key} clicked`);
+          eventBus.dispatch("answerclick", { answer: key });
+        }}
+        htmlcontent={{__html: `<div> <p>${key}</p> ${question['answers'][key]
+        .replace(/<input name="[0-9]+" type="radio" value="[a-zA-Z]"\/>/, '')
+        .replace('<div class="radio">', '')
+        .replace('</div>', '')
+        .replace(`${key}. `, '')} </div>`
       }}
-      htmlcontent={{__html: `<div> <p>${key}</p> ${question['answers'][key]
-      .replace(/<input name="[0-9]+" type="radio" value="[a-zA-Z]"\/>/, '')
-      .replace('<div class="radio">', '')
-      .replace('</div>', '')
-      .replace(`${key}. `, '')} </div>`
-    }}
-      ></AnswerButton>
-      )}
+        ></AnswerButton>
+        )
+    }
     this.setState({answers: answers});
     this.setState({correct: question.correct});
     this.setState({explanation: question.explanation});
   }
 
-  componentDidMount() {
-    this.refreshquestion();
+  async componentDidMount() {
+    await this.fetchquestionlist(defaultCourse);
     eventBus.on("nextclick", () => {this.refreshquestion()});
+    eventBus.on("refresh", async (data:any) => {await this.fetchquestionlist(data.subject);});
   }
 
   componentWillUnmount () {
     eventBus.remove("nextclick", () => {this.refreshquestion()});
+    eventBus.on("refresh", async (data:any) => {await this.fetchquestionlist(data.subject);});
   }
 
   render () {
@@ -214,7 +229,6 @@ class Question extends React.Component<QuestionProps, QuestionState> {
     )
   }
 }
-
 
 class QuestionContent extends React.Component<QuestionProps, QuestionState> {
   constructor(props:Object) {
@@ -233,24 +247,44 @@ class QuestionContent extends React.Component<QuestionProps, QuestionState> {
   }
 }
 
-function ClassSelector () {
-  const [classes, setclasses]:any = useState(null);
+interface ClassSelectorProps {}
 
-  const optionlist = [];
+interface ClassSelectorState {
+  value: any
+}
 
-  for (const key of Object.keys(allQuestions)) {
-    if (key === currentCourse) {
-      optionlist.push(<option id={allQuestions[key]} selected>{key}</option>)
-    } else {
-      optionlist.push(<option id={allQuestions[key]}>{key}</option>)
-    }
+class ClassSelector extends React.Component<ClassSelectorProps, ClassSelectorState> {
+  constructor(props:any) {
+    super(props);
+    this.state = {value: defaultCourse};
+
+    this.handleChange = this.handleChange.bind(this);
+    this.handleSubmit = this.handleSubmit.bind(this);
   }
 
-  return (
-    <select className='classes' id='classselector'>
-      {optionlist}
-    </select>
-  )
+  handleChange(event:any) {
+    this.setState({value: event.target.value});
+    eventBus.dispatch("refresh", { subject: event.target.value });
+  }
+
+  handleSubmit(event:any) {
+    eventBus.dispatch("refresh", { subject: event.target.value });
+    event.preventDefault();
+  }
+
+  render () {
+    const optionlist = [];
+
+    for (const key of Object.keys(allQuestions)) {
+      optionlist.push(<option id={allQuestions[key]}>{key}</option>)
+    }
+
+    return (
+      <select className='classes' id='classselector' value={this.state.value} onChange={this.handleChange}>
+        {optionlist}
+      </select>
+    )
+  }
 }
 
 function Header() {
@@ -269,6 +303,7 @@ class App extends React.Component {
   
   render () {
     return (
+      
       <div className="App">
         <Header></Header>
         <QuestionContent></QuestionContent>
