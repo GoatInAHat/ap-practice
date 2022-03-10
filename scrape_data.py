@@ -54,10 +54,9 @@ def get_questions(subject):
 
             if item.name == 'div' and item.get('class') == ['radio']:
                 question['answers'][item.text[0]] = re.sub(r"<input name=\"[0-9]+\" type=\"radio\" value=\"[a-zA-Z]\"/>", '', str(item.label))
-
-            if item.name == 'div' and item.get('class') == ['answer']:
-                question['correct'] = item.findAll('p')[0].findAll('span')[0].text
-                question['explanation'] = str(item.findAll('p')[2])
+        
+        question['explanation'] = str(soup.findAll('div', {'id': 'answer'})[0])
+        question['correct'] = soup.findAll('span', {'id': 'key'})[0].text
 
         question['content'] += '</div>'
         log_question(question)

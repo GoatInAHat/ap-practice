@@ -1,9 +1,7 @@
 import './App.css';
-import React, { useEffect, useState } from "react";
-import { ApolloProvider, selectHttpOptionsAndBody } from '@apollo/client';
-import { useQuery, gql } from "@apollo/client";
+import React, { useState } from "react";
+import { gql } from "@apollo/client";
 import { ApolloClient, ApolloLink, HttpLink, InMemoryCache } from "@apollo/client";
-import { useLazyQuery } from '@apollo/client';
 
 let currentCourse = "AP Chemistry"
 
@@ -30,18 +28,109 @@ function randomQuestion(questions:[Object]) {
   return questions[randomint]
 }
 
-interface AnswerButtonProps {
-  text: string,
-  clickfunc: any,
+
+interface ExplanationState {
+  show: boolean,
 }
 
-class AnswerButton extends React.Component<AnswerButtonProps> {
+interface ExplanationProps {
+  correct: string;
+  explanation: any;
+}
+
+class Explanation extends React.Component<ExplanationProps, ExplanationState> {
+  constructor (props:any) {
+    super(props);
+    this.state = {
+      show: false,
+    }
+  }
+  
+  componentDidMount() {
+    eventBus.on("answerclick", (data:any) => {this.setState({show: true})});
+    eventBus.on("nextclick", () => {this.setState({show: false})});
+  }
+
   render () {
-    ///<input name="[0-9]+" type="radio" value="[a-zA-Z]">/
-    const regex = /<input name="[0-9]+" type="radio" value="[a-zA-Z]"\/>/
-    console.log(regex.test(this.props.text))
+    if (this.state.show) {
+      return (
+      <>
+      <div className='correctanswer'>
+        <b>Correct Answer:</b>
+        <p>{this.props.correct}</p>
+      </div>
+      <div className='explanation'>
+        <b>Explanation:</b>
+        <p>{this.props.explanation
+        .replace(`(${this.props.correct}) `, '')
+        .replace(`${this.props.correct}-`, '')
+        .replace(/^[a-zA-Z]\s/, '')
+        }</p>
+      </div>
+      </>)
+    } else {
+      return (<button className='showanswer' onClick={() => {
+        this.setState({show: true});
+        eventBus.dispatch("answerclick", { answer: '' });
+      }}>Show Answer</button>)
+    }
+  }
+}
+
+
+interface AnswerButtonProps {
+  htmlcontent: any,
+  clickfunc: any,
+  answerletter: any,
+  correct: string,
+}
+
+interface AnswerButtonState {
+  classname: string,
+  clickable: boolean,
+}
+
+class AnswerButton extends React.Component<AnswerButtonProps, AnswerButtonState> {
+  constructor (props:any) {
+    super(props);
+    this.state = {
+      classname: 'answer',
+      clickable: true,
+    }
+  }
+
+  checkifcorrect(key:string) {
+    console.log(`${this.props.answerletter}: ${key} correct: ${this.props.correct}`)
+    this.setState({clickable: false});
+    if (this.props.answerletter === this.props.correct) {
+      this.setState({classname: this.state.classname + ' correct'});
+    } else if (key === this.props.answerletter) {
+      this.setState({classname: this.state.classname + ' incorrect'});
+    } else if (key !== this.props.answerletter) {
+      this.setState({classname: this.state.classname + ' disabled'});
+    }
+  }
+
+  resetanswerstate () {
+    this.setState({
+      classname: 'answer',
+      clickable: true,
+    });
+  }
+  
+  componentDidMount() {
+    eventBus.on("answerclick", (data:any) => {this.checkifcorrect(data.answer)});
+    eventBus.on("nextclick", () => {this.resetanswerstate()});
+  }
+
+  componentWillUnmount() {
+    eventBus.remove("answerclick", (data:any) => {this.checkifcorrect(data.answer)});
+    eventBus.on("nextclick", () => {this.resetanswerstate()});
+  }
+  
+  render () {
     return (
-      <div className="answer" dangerouslySetInnerHTML={{__html: this.props.text.replace(regex, '')}} onClick={this.props.clickfunc}></div>
+      <div className={this.state.classname} dangerouslySetInnerHTML={this.props.htmlcontent} onClick={this.state.clickable ? this.props.clickfunc : null}></div>
     )
   }
 }
@@ -54,10 +143,6 @@ interface QuestionState {
   answers: Object,
   correct: string,
   explanation: string,
-}
-
-interface QuestionContentProps {
-  refreshfunc: any;
 }
 
 const eventBus = {
@@ -89,19 +174,20 @@ class Question extends React.Component<QuestionProps, QuestionState> {
     let answers = [];
     for (const key of Object.keys(question.answers)) {
       answers.push(
-      <div 
-      className="answer"
-      id={key}
-      onClick={() => {
+      <AnswerButton 
+      correct={question['correct']}
+      answerletter={key}
+      clickfunc={() => {
         console.log(`answer ${key} clicked`);
         eventBus.dispatch("answerclick", { answer: key });
       }}
-      dangerouslySetInnerHTML={{__html: question['answers'][key]
+      htmlcontent={{__html: `<div> <p>${key}</p> ${question['answers'][key]
       .replace(/<input name="[0-9]+" type="radio" value="[a-zA-Z]"\/>/, '')
       .replace('<div class="radio">', '')
       .replace('</div>', '')
+      .replace(`${key}. `, '')} </div>`
     }}
-      ></div>
+      ></AnswerButton>
       )}
     this.setState({answers: answers});
     this.setState({correct: question.correct});
@@ -122,11 +208,13 @@ class Question extends React.Component<QuestionProps, QuestionState> {
       <>
         <div className="Question" dangerouslySetInnerHTML={{__html: this.state.question}}></div>
         {this.state.answers}
+        <Explanation correct={this.state.correct} explanation={this.state.explanation}></Explanation>
       </>
       
     )
   }
 }
+
 
 class QuestionContent extends React.Component<QuestionProps, QuestionState> {
   constructor(props:Object) {
