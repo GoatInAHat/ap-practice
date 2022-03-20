@@ -28,11 +28,21 @@ def get_questions(subject):
         i += 1
         question_num = i
         try:
-            response = requests.get(f'https://www.crackap.com{subject}question-{i}.html')
+            response = requests.get(f'https://www.crackap.com{subject}question-{i}.html', headers={
+                'accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.9',
+                'accept-encoding': 'gzip, deflate, br',
+                'accept-language': 'en-US,en;q=0.9'
+            })
+            response.encoding = response.apparent_encoding
         except:
             print('timed out, waiting')
             time.sleep(40)
-            response = requests.get(f'https://www.crackap.com{subject}question-{i}.html')
+            response = requests.get(f'https://www.crackap.com{subject}question-{i}.html', headers={
+                'accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.9',
+                'accept-encoding': 'gzip, deflate, br',
+                'accept-language': 'en-US,en;q=0.9'
+            })
+            response.encoding = response.apparent_encoding
         if str(response) == '<Response [404]>':
             print('found end of questions')
             break
@@ -44,8 +54,7 @@ def get_questions(subject):
         for item in soup.findAll('div', {'class': 'mcontent'})[0].children:
             
             if item.name == 'pre':
-                for thing in item.findAll():
-                    question['content'] += str(thing)
+                question['content'] += str(item)
             
             if item.name == 'p' and not '</strong></p>' in str(item):
                 question['content'] += str(item)

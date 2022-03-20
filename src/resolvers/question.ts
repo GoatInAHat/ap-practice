@@ -2,8 +2,13 @@ import { Resolver, Query, Arg, GraphQLTimestamp, ObjectType } from "type-graphql
 import fs from "fs";
 import path from "path";
 
-const rawdata = fs.readFileSync(path.resolve(__dirname, 'questions.json'));
-const questiondata = JSON.parse(rawdata.toString());
+var rawdata:string = fs.readFileSync('questions.json', "utf-8");
+
+const questiondata = JSON.parse(
+    rawdata
+        .replace('\u00e2', ' ')
+        .replace('\u0080\u00b2', '′')
+    );
 
 @Resolver()
 export class QuestionResolver {

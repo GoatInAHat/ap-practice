@@ -183,14 +183,6 @@ html, body {
   box-shadow: 0 6.4px 14.4px 0 rgb(0 0 0 / 13%), 0 1.2px 3.6px 0 rgb(0 0 0 / 11%);
 }
 
-.Question strong {
-  display: none;
-}
-
-.Question span {
-  display: none;
-}
-
 .classes {
   display: inline-block;
   outline: 0;
@@ -254,3 +246,4 @@ input {
 .footer {
   position: fixed;
 }
+

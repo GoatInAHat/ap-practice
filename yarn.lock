@@ -223,6 +223,13 @@
   resolved "https://registry.npmjs.org/@types/cors/-/cors-2.8.10.tgz"
   integrity sha512-C7srjHiVG3Ey1nR6d511dtDkCEjxuN9W1HWAEjGq8kpcwmNM6JJkpC0xvabM7BXTG2wDq8Eu33iH9aQKa7IvLQ==
 
+"@types/detect-character-encoding@^0.7.0":
+  version "0.7.0"
+  resolved "https://registry.yarnpkg.com/@types/detect-character-encoding/-/detect-character-encoding-0.7.0.tgz#1465c869c2cde2eead26b965f420994e7048bb10"
+  integrity sha512-qe+QA9MaIVFNRhZQtyLwCBEBtkereJUErD14lk/o4uSNA3xAzAnzhzXSNCOhf2mmX/JPszGM4mPExCIn55UZQA==
+  dependencies:
+    "@types/node" "*"
+
 "@types/express-serve-static-core@^4.17.18", "@types/express-serve-static-core@^4.17.21":
   version "4.17.28"
   resolved "https://registry.npmjs.org/@types/express-serve-static-core/-/express-serve-static-core-4.17.28.tgz"
@@ -911,6 +918,11 @@ deprecated-decorator@^0.1.6:
   version "0.1.6"
   resolved "https://registry.npmjs.org/deprecated-decorator/-/deprecated-decorator-0.1.6.tgz"
   integrity sha1-AJZjF7ehL+kvPMgx91g68ym4bDc=
+
+destr@^1.1.0:
+  version "1.1.0"
+  resolved "https://registry.yarnpkg.com/destr/-/destr-1.1.0.tgz#2da6add6ba71e04fd0abfb1e642d4f6763235095"
+  integrity sha512-Ev/sqS5AzzDwlpor/5wFCDu0dYMQu/0x2D6XfAsQ0E7uQmamIgYJ6Dppo2T2EOFVkeVYWjc+PCLKaqZZ57qmLg==
 
 destroy@~1.0.4:
   version "1.0.4"
@@ -2224,6 +2236,11 @@ typedarray-to-buffer@^3.1.5:
   dependencies:
     is-typedarray "^1.0.0"
 
+types@^0.1.1:
+  version "0.1.1"
+  resolved "https://registry.yarnpkg.com/types/-/types-0.1.1.tgz#860c6859d11366293f835d8c95aebcf95029838e"
+  integrity sha1-hgxoWdETZik/g12Mla68+VApg44=
+
 typescript@^4.5.4:
   version "4.5.4"
   resolved "https://registry.npmjs.org/typescript/-/typescript-4.5.4.tgz"
@@ -2282,6 +2299,11 @@ url-parse-lax@^3.0.0:
   integrity sha1-FrXK/Afb42dsGxmZF3gj1lA6yww=
   dependencies:
     prepend-http "^2.0.0"
+
+utf-8@^2.0.0:
+  version "2.0.0"
+  resolved "https://registry.yarnpkg.com/utf-8/-/utf-8-2.0.0.tgz#6c2a309d683958862a01b5bf8e1d2dff46d36bf9"
+  integrity sha512-DItg/Z20ltBzugPrb8Mx1oN0F8CqN5bD38T57YM/pF/GOzUsNVXiellI0PbJPq3e1Z7BEDNoWP1H1+4n7g54Cg==
 
 util.promisify@^1.0.0:
   version "1.1.1"
