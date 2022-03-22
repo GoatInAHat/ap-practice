@@ -4,6 +4,7 @@ import requests
 from bs4 import BeautifulSoup
 import time
 import re
+import os
 
 response = requests.get('https://www.crackap.com')
 
@@ -61,7 +62,7 @@ def get_questions(subject):
 
             if item.name == 'div' and item.get('class') == ['radio']:
                 question['answers'][item.text[0]] = re.sub(r"<input name=\"[0-9]+\" type=\"radio\" value=\"[a-zA-Z]\"/>", '', str(item.label))
-        
+
         question['explanation'] = str(soup.findAll('div', {'id': 'answer'})[0])
         question['correct'] = soup.findAll('span', {'id': 'key'})[0].text
 
@@ -70,7 +71,8 @@ def get_questions(subject):
 
         qlist.append(question)
 
-    return qlist
+    with open(f'questions/{current_subject.split("/")[2].split("/")[0]}.json', 'w') as f:
+        json.dump(qlist, f)
 
 for child in soup.body.section.aside.findAll('div')[1].ul.findAll('li'):
     item = child.findAll('a', attrs={ 'class' : 'sub'})
@@ -85,6 +87,3 @@ for child in soup.body.section.aside.findAll('div')[1].ul.findAll('li'):
 
 for subject in questions:
     print(f'{subject}: {len(questions[subject]["questions"])}')
-
-with open('questions.json', 'w') as f:
-    json.dump(questions, f)

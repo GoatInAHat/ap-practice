@@ -16,12 +16,11 @@ export const client = new ApolloClient({
   link: ApolloLink.from([httpLink]),
 });
 
-async function getAllQuestions(subject: String) {
-  console.log(subject);
-  const data = await client.query({ query: gql`
-  query question { allQuestions(subject: "${subject}") }` })
+async function getAllQuestions(subject: string) {
+  console.log(allQuestions[subject]);
+  const response = await fetch(`https://raw.githubusercontent.com/GoatInAHat/ap-data/main/${allQuestions[subject].split('/')[2].split('/')[0]}.json`)
 
-  return JSON.parse(data.data.allQuestions);
+  return response.json();
 }
 
 function randomQuestion(questions:[Object]) {
