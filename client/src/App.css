@@ -1,3 +1,40 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+.indent {
+  text-indent: 30px;
+}
+
+.content p {
+  margin-top: 15px;
+  margin-bottom: 15px;
+}
+
+.content {
+  padding: 10px;
+}
+
+
+.content p.indent{text-indent:2em;}
+.content blockquote{font-size:14px}
+.content .superscript{vertical-align: super;font-size: 80%;}
+.content .subscript{vertical-align: sub;font-size: 80%;}
+.content .sup{vertical-align: super; font-size: 80%}
+.content .sub{vertical-align: sub; font-size: 80%}
+.content .italic{font-style:italic}
+.content .bold{font-weight:bold}
+.content .right{text-align:right}
+.content .center{text-align:center; justify-content: space-around;}
+.content ul.qlist{margin:12px;}
+.content ul.qlist li{margin-top:6px;}
+.content #result{font-weight:bold;font-size:16px;color:#FF9900}
+.content .softinfo{margin:0}
+.content .softinfo li{margin:12px 0;font-size:13px;}
+.content p{margin:14px 0;line-height:24px}
+.content div.radio{margin-top:8px}
+.content .answerbg{margin-top:8px;padding:6px 24px;background-color:#f9f9f9;border:1px solid #e6e6e6}
+
 html, body {
   background-color: #F3F4F6;
   height: 100%;
@@ -5,16 +42,38 @@ html, body {
 
 .App {
   height: 10px;
-  width: 100%;
 }
 
 .explanation {
   display: flex;
   justify-content: space-around;
+  position: relative;
+}
+
+.pre-scrollable {
+  max-height: 340px;
+  overflow-y: scroll;
+}
+
+pre {
+  font-size: 14px;
+  white-space: pre-wrap;
+  word-break: keep-all;
+  word-wrap: break-word;
+  display: block;
+  padding: 9.5px;
+  margin: 0 0 10px;
+  font-size: 13px;
+  line-height: 1.42857143;
+  color: #333;
+  word-break: break-all;
+  word-wrap: break-word;
+  background-color: #f5f5f5;
+  border: 1px solid #ccc;
+  border-radius: 4px;
 }
 
 .hidden {
-  width: 100%;
   margin-top: 20px;
   margin-bottom: 20px;
   margin-left: 20px;
@@ -74,6 +133,7 @@ html, body {
   padding-right: 20px;
   box-shadow: 0 6.4px 14.4px 0 rgb(0 0 0 / 13%), 0 1.2px 3.6px 0 rgb(0 0 0 / 11%);
   transition: box-shadow 0.15s ease,transform 0.15s ease;
+  cursor: pointer;
 }
 
 .answer:hover {
@@ -104,6 +164,7 @@ html, body {
   outline-width: 5px;
   outline-color: green;
   box-shadow: 0 6.4px 14.4px 0 #2ea043, 0 1.2px 3.6px 0 #2ea043;
+  cursor: default;
 }
 
 .correct p {
@@ -120,6 +181,7 @@ html, body {
   outline-width: 5px;
   outline-color: green;
   box-shadow: 0 6.4px 14.4px 0 #a02e2e, 0 1.2px 3.6px 0 #a02e2e;
+  cursor: default;
 }
 
 .incorrect label {
@@ -138,6 +200,7 @@ html, body {
 .disabled {
   color: grey;
   box-shadow: 0 6.4px 14.4px 0 #d6d6e7, 0 1.2px 3.6px 0 #d6d6e7;
+  cursor: default;
 }
 
 .disabled:hover {
@@ -164,7 +227,6 @@ html, body {
   padding-bottom: 10px;
   font-size: 20px;
   display: flex;
-  justify-content: space-between;
   box-shadow: 0 6.4px 14.4px 0 rgb(0 0 0 / 13%), 0 1.2px 3.6px 0 rgb(0 0 0 / 11%);
   border-radius: 5px;
 }
@@ -228,6 +290,7 @@ html, body {
   font-size: 18px;
   text-shadow: 0 1px 0 rgb(0 0 0 / 40%);
   transition: box-shadow 0.15s ease,transform 0.15s ease;
+  margin-left: auto;
 }
 
 .nextbutton:hover {
@@ -243,7 +306,19 @@ input {
   display: none;
 }
 
-.footer {
-  position: fixed;
+.homebutton {
+  margin-left: 10px;
+  margin-right: 10px;
+  transition: box-shadow 0.15s ease,transform 0.15s ease;
 }
 
+.homebutton img {
+  height: 48px;
+  box-shadow: 0 6.4px 14.4px 0 rgb(0 0 0 / 13%), 0 1.2px 3.6px 0 rgb(0 0 0 / 11%);
+  border-radius: 5px;
+}
+
+.homebutton:hover {
+  box-shadow: 0px 4px 8px rgb(45 35 66 / 40%), 0px 7px 13px -3px rgb(45 35 66 / 30%), inset 0px -3px 0px #3c4fe0;
+  transform: translateY(-2px);
+}

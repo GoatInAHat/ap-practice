@@ -1,23 +1,16 @@
 import './App.css';
 import React, { useState } from "react";
-import { gql } from "@apollo/client";
-import { ApolloClient, ApolloLink, HttpLink, InMemoryCache } from "@apollo/client";
+import ReactGA from 'react-ga4';
 
-const defaultCourse = "AP Calculus AB"
+ReactGA.initialize('G-EYTW17TWRX');
+
+ReactGA.send("pageview");
+
+const defaultCourse = "AP Chemistry"
 
 const allQuestions:any = {'AP World History': '/ap/world-history/', 'AP US History': '/ap/us-history/', 'AP European History': '/ap/european-history/', 'AP US Government and Politics': '/ap/us-government-and-politics/', 'AP Psychology': '/ap/psychology/', 'AP Human Geography': '/ap/human-geography/', 'AP Biology': '/ap/biology/', 'AP Chemistry': '/ap/chemistry/', 'AP Macroeconomics': '/ap/macroeconomics/', 'AP Microeconomics': '/ap/microeconomics/', 'AP Statistics': '/ap/statistics/', 'AP English Language and Composition': '/ap/english-language-and-composition/', 'AP English Literature and Composition': '/ap/english-literature-and-composition/', 'AP Calculus AB': '/ap/calculus-ab/', 'AP Calculus BC': '/ap/calculus-bc/', 'AP Physics 1': '/ap/physics-1/', 'AP Physics 2': '/ap/physics-2/', 'AP Physics C: Mechanics': '/ap/physics-c-mechanics/', 'AP Physics C: Electricity and Magnetism': '/ap/physics-c-electricity-and-magnetism/', 'AP Environmental Science': '/ap/environmental-science/'};
 
-const httpLink = new HttpLink({
-  uri: "http://localhost:4000/graphql",
-});
-
-export const client = new ApolloClient({
-  cache: new InMemoryCache(),
-  link: ApolloLink.from([httpLink]),
-});
-
 async function getAllQuestions(subject: string) {
-  console.log(allQuestions[subject]);
   const response = await fetch(`https://raw.githubusercontent.com/GoatInAHat/ap-data/main/${allQuestions[subject].split('/')[2].split('/')[0]}.json`)
 
   return response.json();
@@ -100,7 +93,6 @@ class AnswerButton extends React.Component<AnswerButtonProps, AnswerButtonState>
   }
 
   checkifcorrect(key:string) {
-    console.log(`${this.props.answerletter}: ${key} correct: ${this.props.correct}`)
     this.setState({clickable: false});
     if (this.props.answerletter === this.props.correct) {
       this.setState({classname: this.state.classname + ' correct'});
@@ -131,7 +123,6 @@ class AnswerButton extends React.Component<AnswerButtonProps, AnswerButtonState>
   }
   
   render () {
-    console.log(this.props.htmlcontent);
     return (
       <div className={this.state.classname} dangerouslySetInnerHTML={this.props.htmlcontent} onClick={this.state.clickable ? this.props.clickfunc : null}></div>
     )
@@ -180,7 +171,6 @@ class Question extends React.Component<QuestionProps, QuestionState> {
   
   refreshquestion () {
     const question:any = randomQuestion(this.state.questionlist);
-    console.log(this.state.questionlist)
     this.setState({question: question.content});
     let answers = [];
     for (const key of Object.keys(question.answers)) {
@@ -191,6 +181,14 @@ class Question extends React.Component<QuestionProps, QuestionState> {
         clickfunc={() => {
           console.log(`answer ${key} clicked`);
           eventBus.dispatch("answerclick", { answer: key });
+          
+          let correct = key === question['correct'];
+          console.log(`Answer is ${correct ? 'correct' : 'incorrect'}`)
+          
+          ReactGA.event({
+            category: 'Answer',
+            action: correct ? 'correct' : 'incorrect',
+          });
         }}
         htmlcontent={{__html: `<div> <p>${key}</p> ${question['answers'][key]
         .replace(/<input name="[0-9]+" type="radio" value="[a-zA-Z]"\/>/, '')
@@ -204,6 +202,12 @@ class Question extends React.Component<QuestionProps, QuestionState> {
     this.setState({answers: answers});
     this.setState({correct: question.correct});
     this.setState({explanation: question.explanation});
+
+
+    ReactGA.event({
+      category: 'Question Interaction',
+      action: 'new question',
+    });
   }
 
   async componentDidMount() {
@@ -220,7 +224,11 @@ class Question extends React.Component<QuestionProps, QuestionState> {
   render () {
     return (
       <>
-        <div className="Question" dangerouslySetInnerHTML={{__html: this.state.question}}></div>
+        <div className="Question" dangerouslySetInnerHTML={{__html: this.state.question
+          .replace(/<pre class="pre-scrollable">/, '')
+          .replace('</pre>', '')
+          .replace('â€“','-')
+        }}></div>
         {this.state.answers}
         <Explanation correct={this.state.correct} explanation={this.state.explanation}></Explanation>
       </>
@@ -289,6 +297,9 @@ class ClassSelector extends React.Component<ClassSelectorProps, ClassSelectorSta
 function Header() {
   return (
     <header className="header">
+      <a href='https://goatinahat.dev/' className='homebutton'>
+        <img src='https://goatinahat.dev/profile.webp' alt='homepage'></img>
+      </a>
       <ClassSelector></ClassSelector>
       <button className='nextbutton' id='next' onClick={() => {
         console.log(`Next button clicked`);
