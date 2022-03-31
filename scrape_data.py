@@ -37,7 +37,7 @@ def get_questions(subject):
             response.encoding = response.apparent_encoding
         except:
             print('timed out, waiting')
-            time.sleep(40)
+            time.sleep(50)
             response = requests.get(f'https://www.crackap.com{subject}question-{i}.html', headers={
                 'accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.9',
                 'accept-encoding': 'gzip, deflate, br',
@@ -47,7 +47,7 @@ def get_questions(subject):
         if str(response) == '<Response [404]>':
             print('found end of questions')
             break
-        soup = BeautifulSoup(response.text, 'lxml')
+        soup = BeautifulSoup(response.text, 'html')
         question = {'content': "", 'answers': {}}
 
         question['content'] += '<div class="content">'
@@ -55,7 +55,8 @@ def get_questions(subject):
         for item in soup.findAll('div', {'class': 'mcontent'})[0].children:
             
             if item.name == 'pre':
-                question['content'] += str(item)
+                for thing in item.findAll():
+                    question['content'] += str(thing)
             
             if item.name == 'p' and not '</strong></p>' in str(item):
                 question['content'] += str(item)
