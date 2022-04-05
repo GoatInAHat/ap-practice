@@ -1,0 +1,149 @@
+import './App.css';
+import React, { useEffect, useState } from "react";
+import { ApolloProvider, selectHttpOptionsAndBody } from '@apollo/client';
+import { useQuery, gql } from "@apollo/client";
+import { ApolloClient, ApolloLink, HttpLink, InMemoryCache } from "@apollo/client";
+import { useLazyQuery } from '@apollo/client';
+
+let currentCourse = "AP Chemistry"
+
+const CLASSES = gql`
+  query subjectlist
+`;
+
+const httpLink = new HttpLink({
+  uri: "http://localhost:4000/graphql",
+});
+
+export const client = new ApolloClient({
+  cache: new InMemoryCache(),
+  link: ApolloLink.from([httpLink]),
+});
+
+async function getAllQuestions(subject: String) {
+  const data = await client.query({ query: gql`
+  query question { allQuestions(subject: ${subject}) }` })
+
+  return JSON.parse(data.data.allQuestions);
+}
+
+async function getAllClasses() {
+  const data = await client.query({ query: CLASSES })
+
+  return JSON.parse(data.data);
+}
+
+function randomQuestion(questions:[Object]) {
+  const randomint = Math.floor(Math.random() * questions.length)
+  return questions[randomint]
+}
+
+interface AnswerButtonProps {
+  text: string,
+}
+
+class AnswerButton extends React.Component<AnswerButtonProps> {
+  render () {
+    return (
+      <div className="Question" dangerouslySetInnerHTML={{__html: this.props.text}}></div>
+    )
+  }
+}
+
+interface QuestionProps {
+}
+
+interface QuestionState {
+  content: any;
+}
+
+function Question () {
+  const [question, setquestion]:any = useState(null);
+  const [answers, setanswers]:any = useState(null);
+  const [correct, setcorrect]:any = useState(null);
+  const [explanation, setexplanation]:any = useState(null);
+
+  useEffect(() => {
+    async function getQuestion() {
+      const question:any = randomQuestion(await getAllQuestions("AP Chemistry"));
+      setquestion(question.content);
+      let answers = [];
+      for (const key of Object.keys(question.answers)) {
+        answers.push(<AnswerButton text={question.answers[key]} />)
+      }
+      setanswers(answers);
+      setcorrect(question.correct);
+      setexplanation(question.explanation);
+    }
+    getQuestion();
+  }, []);
+
+  return (
+    <div className="Question" dangerouslySetInnerHTML={{__html: question}}></div>
+  )
+}
+
+class QuestionContent extends React.Component<QuestionProps, QuestionState> {
+  constructor(props:Object) {
+    super(props);
+    this.setState({});
+  }
+
+  render() {
+    
+    return (
+      <Question></Question>
+    )
+  }
+}
+
+function ClassSelector () {
+  const [classes, setclasses]:any = useState(null);
+
+  useEffect(() => {
+    async function getClasses() {
+      const question:any = randomQuestion(await getAllClasses());
+      setclasses(question.content);
+    }
+    getClasses();
+  }, []);
+
+  const classOptions = [];
+
+  for (const classstr of classes) {
+    classOptions.push(<option value={classstr}>{classstr}</option>)
+  }
+
+  return (
+    <select name="Choose an AP subject" onChange={(e) => {currentCourse = e.target.value}}>
+      {classOptions}
+    </select>
+  )
+}
+
+function Header() {
+  return (
+    <header className="header">
+      <a>test</a>
+      <a>test</a>
+      <a>test</a>
+      <a>test</a>
+    </header>
+  )
+}
+
+function App() {
+  
+  return (
+    <div className="App">
+      <Header></Header>
+      <button onClick={
+        async () => console.log(randomQuestion(await getAllQuestions("AP Chemistry")))
+        }>a</button>
+        <p></p>
+      <QuestionContent></QuestionContent>
+    </div>
+  );
+}
+
+export default App;
