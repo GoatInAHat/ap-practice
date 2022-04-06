@@ -5,6 +5,7 @@ import RealisticConfetti from "./components/confetti";
 import { eventBus } from "./utils/eventBus";
 import StreakCounter from "./components/StreakCounter"
 import Explanation from "./components/explaination"
+import FallingCross from "./components/fallingcross"
 
 ReactGA.initialize('G-EYTW17TWRX');
 
@@ -140,6 +141,8 @@ class Question extends React.Component<QuestionProps, QuestionState> {
 
           if (correct) {
             eventBus.dispatch("confetti", { x: xpos, y: ypos});
+          } else {
+            eventBus.dispatch("fallingcross", { x: xpos, y: ypos});
           }
         }}
         htmlcontent={{__html: `<div> <p>${key}</p> ${question['answers'][key]
@@ -278,6 +281,7 @@ class App extends React.Component {
           <div className="QuestionContent">
             <QuestionContent></QuestionContent>
             <RealisticConfetti></RealisticConfetti>
+            <FallingCross></FallingCross>
           </div>
         </div>
       </div>

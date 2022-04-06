@@ -326,3 +326,21 @@ input {
   width: 190px;
   justify-content: space-between;
 }
+
+.showcross {
+  cursor: default;
+  font-size: x-large;
+  visibility: visible;
+  transform: rotate(-20deg);
+  opacity: 1;
+  transition: box-shadow 0.15s ease;
+}
+
+.hidecross {
+  cursor: default;
+  font-size: x-large;
+  visibility: hidden;
+  opacity: 0;
+  transform: translateY(100px) rotate(90deg);
+  transition: visibility 0s 2s, opacity 2s, transform 2s linear;
+}
