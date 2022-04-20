@@ -253,9 +253,6 @@ class ClassSelector extends React.Component<ClassSelectorProps, ClassSelectorSta
 function Header() {
   return (
     <header className="header">
-      <a href='https://goatinahat.dev/' className='homebutton'>
-        <img src='https://goatinahat.dev/profile.webp' alt='homepage'></img>
-      </a>
       <ClassSelector></ClassSelector>
       <StreakCounter></StreakCounter>
       <button className='nextbutton' id='next' onClick={() => {
